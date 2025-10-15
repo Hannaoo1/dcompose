@@ -1,7 +1,7 @@
 version: '3.8'
 name: awsgoo
 services:
-  nginx-lb:
+  nginx-proxy:
     build: ../../docker_file/nginx   
     ports:
       - "9889:80"       
