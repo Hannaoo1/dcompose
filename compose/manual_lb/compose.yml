@@ -2,17 +2,12 @@ version: '3.8'
 name: awsgoo
 services:
   nginx-lb:
-    #default.conf 가 들어있는 nginx 를 사용
     build: ../../docker_file/nginx   
     ports:
-      - "9051:80"      
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-   
+      - "9889:80"       
     #default.conf 의 upsteam 에 있는 서비스 이름을 아래 생성 되는 블로그 패턴과 맞춰 주기
     depends_on:
-      - myblog-1
-      - myblog-2
+      - blog
     deploy:
       resources:
         limits:
@@ -22,29 +17,20 @@ services:
           cpus: '0.05'
           memory: 20M
 
-  myblog-1:
+  blog:
     build: ../../docker_file/httpd
-    expose:
-      - "80"
     deploy:
-      resources: 
+      mode: replicated
+      replicas: 2 # https://docs.docker.com/compose/compose-file/deploy/#replicas  
+      resources: # https://docs.docker.com/compose/compose-file/compose-file-v3/#resources
         limits:
           cpus: '0.05'
           memory: 50M
         reservations:
           cpus: '0.01'
           memory: 20M
-
-  myblog-2:
-    build: ../../docker_file/httpd
     expose:
       - "80"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.05'
-          memory: 50M
-        reservations:
-          cpus: '0.01'
-          memory: 20M
-        
+    environment:
+      - VIRTUAL_HOST=aws.google.com,172.31.86.218,ec2-54-236-8-204.compute-1.amazonaws.com
+      - VIRTUAL_PORT=80
