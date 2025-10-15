@@ -1,18 +1,18 @@
 version: '3.8'
 name: awsgoo
 services:
-  nginx-proxy:
-    # TODO : 우리는 default.conf 가 들어있는 nginx 를 사용
-    # images 가 아내라 아래 blog 블럭과 같은 build 를 사용
-    # 그리고 default.conf 의 upsteam 에 있는 서비스 이름을 아래 생성 되는 블로그 패턴과 맞춰 주기
-    image: nginxproxy/nginx-proxy # https://github.com/nginx-proxy/nginx-proxy
+  nginx-lb:
+    #default.conf 가 들어있는 nginx 를 사용
+    build: ../../docker_file/nginx   
     ports:
-      - "9889:80"
-    # TODO : 이거 필요 한지 고민해 보기 
+      - "9051:80"      
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+   
+    #default.conf 의 upsteam 에 있는 서비스 이름을 아래 생성 되는 블로그 패턴과 맞춰 주기
     depends_on:
-      - blog
+      - myblog-1
+      - myblog-2
     deploy:
       resources:
         limits:
@@ -22,20 +22,29 @@ services:
           cpus: '0.05'
           memory: 20M
 
-  blog:
+  myblog-1:
     build: ../../docker_file/httpd
+    expose:
+      - "80"
     deploy:
-      mode: replicated
-      replicas: 1 # https://docs.docker.com/compose/compose-file/deploy/#replicas
-      resources: # https://docs.docker.com/compose/compose-file/compose-file-v3/#resources
+      resources: 
         limits:
           cpus: '0.05'
           memory: 50M
         reservations:
           cpus: '0.01'
           memory: 20M
+
+  myblog-2:
+    build: ../../docker_file/httpd
     expose:
       - "80"
-    environment:
-      - VIRTUAL_HOST=aws.google.com,172.31.86.218,ec2-54-236-8-204.compute-1.amazonaws.com
-      - VIRTUAL_PORT=80
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 50M
+        reservations:
+          cpus: '0.01'
+          memory: 20M
+        
