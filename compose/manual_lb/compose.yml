@@ -2,10 +2,9 @@ version: '3.8'
 name: awsgoo
 services:
   nginx-proxy:
-    build: ../../docker_file/nginx   
+    build: ../../docker_file/nginx_compose   
     ports:
       - "9889:80"       
-    #default.conf 의 upsteam 에 있는 서비스 이름을 아래 생성 되는 블로그 패턴과 맞춰 주기
     depends_on:
       - blog
     deploy:
